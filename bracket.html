@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>2026 March Madness Bracket Picks</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050810;color:#e8eaf0;font-family:Georgia,"Times New Roman",serif;min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+.hidden{display:none}
+.tab-content{display:none}
+.tab-content.active{display:block}
+/* Header */
+.header{background:linear-gradient(135deg,#0d1b2a,#1a2744,#0d1b2a);border-bottom:2px solid #c9a96e;padding:1.5rem 1rem;text-align:center}
+.header-eyebrow{font-size:.62rem;letter-spacing:.3em;color:#c9a96e;margin-bottom:.35rem;text-transform:uppercase}
+.header h1{font-size:clamp(1.8rem,6vw,3rem);color:#fff;font-weight:bold}
+.header-sub{font-size:.88rem;color:#c9a96e;font-style:italic;margin-bottom:.85rem}
+.champ-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,169,110,.15);border:1px solid #c9a96e;border-radius:50px;padding:.4rem 1.2rem;font-size:.83rem}
+.champ-pill strong{color:#FFD700}
+/* Tabs */
+.tabs{display:flex;justify-content:center;gap:.4rem;padding:1rem 1rem .6rem;flex-wrap:wrap}
+.tab-btn{padding:.5rem 1rem;border-radius:6px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid #2a3040;background:rgba(255,255,255,.04);color:#8890a0;transition:all .2s}
+.tab-btn.active{border-color:#c9a96e;background:rgba(201,169,110,.18);color:#c9a96e}
+/* Bracket */
+.bracket-hint{text-align:center;font-size:.62rem;letter-spacing:.2em;color:#607080;text-transform:uppercase;padding:.25rem 1rem .85rem}
+.bracket-hint span{color:#c9a96e}
+.region-wrap{margin-bottom:1.5rem}
+.region-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;padding-left:.75rem;flex-wrap:wrap}
+.region-bar{width:3px;height:16px;border-radius:2px;flex-shrink:0}
+.region-name{font-weight:bold;font-size:.88rem}
+.region-champ-label{font-size:.75rem;color:#607080}
+.region-upset{margin-left:auto;font-size:.65rem;color:#607080;padding-right:.75rem}
+.bracket-scroll{overflow-x:auto;padding-bottom:.5rem;-webkit-overflow-scrolling:touch}
+.bracket-scroll::-webkit-scrollbar{height:4px}
+.bracket-scroll::-webkit-scrollbar-track{background:#0e1420}
+.bracket-scroll::-webkit-scrollbar-thumb{background:#c9a96e;border-radius:2px}
+.bracket-row{display:flex;align-items:center;padding:0 .75rem;min-width:640px}
+.col{display:flex;flex-direction:column;flex-shrink:0}
+.connector{width:10px;height:1px;flex-shrink:0;opacity:.35}
+.slot{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.025);border:1px solid #1e2535;border-radius:4px;padding:3px 6px;min-width:118px;height:24px;margin-bottom:2px}
+.slot.winner{background-color:var(--slot-bg);border-color:var(--slot-border)}
+.slot .seed{font-size:.58rem;color:#c9a96e;min-width:13px;font-weight:bold}
+.slot .tname{font-size:.7rem;color:#707888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.slot.winner .tname{color:#fff;font-weight:bold}
+.slot .check{font-size:.52rem;margin-left:2px}
+.slot-gap{height:2px}
+.pair-gap-sm{height:2px}
+.pair-gap-lg{height:10px}
+.pair-gap-xl{height:18px}
+.champ-bubble{border-radius:8px;padding:8px 12px;font-size:.75rem;font-weight:bold;white-space:nowrap;text-align:center;line-height:1.4;border-width:2px;border-style:solid}
+.swipe-hint{text-align:center;font-size:.68rem;color:#404858;padding:.25rem}
+/* Final Four */
+.ff-wrap{max-width:600px;margin:0 auto;padding:0 .75rem}
+.ff-title{text-align:center;margin-bottom:1.25rem}
+.ff-title h2{color:#c9a96e;font-size:1.4rem}
+.ff-title p{font-size:.7rem;color:#607080;margin-top:.2rem}
+.sf-labels{display:grid;grid-template-columns:1fr 56px 1fr;gap:.5rem;margin-bottom:.4rem}
+.sf-label{text-align:center;font-size:.62rem;letter-spacing:.15em;color:#607080;text-transform:uppercase}
+.sf-grid{display:grid;grid-template-columns:1fr 56px 1fr;gap:.5rem;align-items:center;margin-bottom:1.5rem}
+.sf-icon{text-align:center;font-size:1.8rem}
+.sf-adv{text-align:center;font-size:.68rem;margin-top:2px}
+.team-box{border-radius:8px;padding:.65rem 1rem;text-align:center;font-size:.9rem;margin-bottom:.4rem;border-width:1px;border-style:solid}
+.team-box.champ{background:rgba(255,215,0,.15);border-color:#FFD700;color:#FFD700;font-weight:bold}
+.team-box.runner{background:rgba(74,158,255,.1);border-color:#4a9eff;color:#4a9eff;font-weight:bold}
+.team-box.normal{background:#0e1420;border-color:#1e2535;color:#c0c8d4}
+.championship{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(201,169,110,.15));border:2px solid #c9a96e;border-radius:12px;padding:1.25rem;text-align:center;margin-bottom:1.25rem}
+.champ-eyebrow{font-size:.62rem;letter-spacing:.3em;color:#c9a96e;text-transform:uppercase;margin-bottom:.75rem}
+.champ-matchup{display:flex;justify-content:center;align-items:center;gap:1.25rem;flex-wrap:wrap}
+.champ-matchup .runner-name{font-size:1.2rem;font-weight:bold;color:#4a9eff}
+.champ-matchup .vs{color:#c9a96e;font-size:1.2rem}
+.champ-matchup .winner-name{font-size:1.5rem;font-weight:bold;color:#FFD700}
+.champ-matchup .winner-label{font-size:.68rem;color:#c9a96e;text-transform:uppercase;letter-spacing:.1em}
+.odds-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.odds-card{background:#0e1420;border:1px solid #1e2535;border-radius:8px;padding:.65rem}
+.odds-top{display:flex;justify-content:space-between;margin-bottom:.25rem}
+.odds-team{color:#c0c8d4;font-size:.83rem;font-weight:bold}
+.odds-num{color:#4aff88;font-size:.78rem;font-weight:bold}
+.odds-note{font-size:.7rem;color:#607080;line-height:1.4}
+/* Insights */
+.insights-wrap{padding:1rem;max-width:860px;margin:0 auto}
+.insights-eyebrow{text-align:center;font-size:.62rem;letter-spacing:.3em;color:#607080;text-transform:uppercase;margin-bottom:1rem}
+.insight-card{background:#0e1420;border-radius:10px;padding:1rem;margin-bottom:.85rem;border-left-width:4px;border-left-style:solid}
+.insight-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.insight-title{font-weight:bold;color:#fff;margin-bottom:.35rem;font-size:.93rem}
+.insight-body{color:#8890a0;font-size:.8rem;line-height:1.55}
+.conf-box{text-align:center;min-width:58px}
+.conf-num{font-size:1.25rem;font-weight:bold}
+.conf-label{font-size:.58rem;color:#607080;text-transform:uppercase}
+.conf-bar-bg{margin-top:4px;height:3px;background:#1e2535;border-radius:2px}
+.conf-bar{height:100%;border-radius:2px}
+.sources{margin-top:1.25rem;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.2);border-radius:8px;padding:.85rem;font-size:.73rem;color:#8890a0;line-height:1.6}
+.sources strong{color:#c9a96e}
+/* Footer */
+.footer{text-align:center;padding:1.5rem;color:#404858;font-size:.68rem;border-top:1px solid #1a2030;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+  <div class="header-eyebrow">2026 NCAA Tournament &middot; Analytics-Driven Picks</div>
+  <h1>March Madness &#x1F3C0;</h1>
+  <div class="header-sub">Best-chance bracket &middot; Analytics + Odds + History</div>
+  <div class="champ-pill">&#x1F3C6; Pick to win it all: <strong>Michigan Wolverines</strong> &#x1F3C6;</div>
+</div>
+
+<!-- TABS -->
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('bracket')">&#x1F4CB; Full Bracket</button>
+  <button class="tab-btn" onclick="showTab('final4')">&#x1F3DF; Final Four</button>
+  <button class="tab-btn" onclick="showTab('insights')">&#x1F4A1; Insights</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<!-- BRACKET TAB -->
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<div id="tab-bracket" class="tab-content active">
+  <div class="bracket-hint">R64 &rarr; R32 &rarr; Sweet 16 &rarr; Elite 8 &rarr; Champ &nbsp;&middot;&nbsp; <span>Bold + &#x2713; = projected winner</span></div>
+
+  <!-- EAST -->
+
+  <div class="region-wrap">
+    <div class="region-header">
+      <div class="region-bar" style="background:#4a9eff"></div>
+      <span class="region-name" style="color:#4a9eff">East</span>
+      <span class="region-champ-label">&rarr; <strong style="color:#4a9eff">Duke</strong></span>
+      <span class="region-upset">&#x26A1; N. Iowa over St. John&#39;s</span>
+    </div>
+    <div class="bracket-scroll">
+      <div class="bracket-row" style="--ac:#4a9eff">
+        <!-- R1 -->
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">1</span><span class="tname">Duke</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">16</span><span class="tname">Siena</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">8</span><span class="tname">Ohio State</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">9</span><span class="tname">TCU</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="seed">5</span><span class="tname">St. John&#39;s</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">12</span><span class="tname">N. Iowa</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">4</span><span class="tname">Kansas</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">13</span><span class="tname">Cal Baptist</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">6</span><span class="tname">Louisville</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">11</span><span class="tname">S. Florida</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">3</span><span class="tname">Mich. State</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">14</span><span class="tname">NDSU</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">7</span><span class="tname">UCLA</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">10</span><span class="tname">UCF</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="seed">2</span><span class="tname">UConn</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="seed">15</span><span class="tname">Furman</span></div>
+        </div>
+        <div class="connector" style="background:#4a9eff"></div>
+        <!-- R2 -->
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">Duke</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Ohio State</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">N. Iowa</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">Kansas</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">Louisville</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">Mich. State</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">UCLA</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">UConn</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#4a9eff"></div>
+        <!-- S16 -->
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">Duke</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Kansas</span></div>
+          <div class="pair-gap-xl"></div>
+          <div class="slot"><span class="tname">Mich. State</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">UConn</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#4a9eff"></div>
+        <!-- E8 -->
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,158,255,.18);--slot-border:rgba(74,158,255,.55)"><span class="tname">Duke</span><span class="check" style="color:#4a9eff">&#x2713;</span></div>
+          <div class="slot-gap"></div>
+          <div class="slot"><span class="tname">UConn</span></div>
+        </div>
+        <div class="connector" style="background:#4a9eff"></div>
+        <!-- Champ -->
+        <div class="champ-bubble" style="background:rgba(74,158,255,.22);border-color:#4a9eff;color:#4a9eff">&#x1F3C6;<br/>Duke</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEST -->
+
+  <div class="region-wrap">
+    <div class="region-header">
+      <div class="region-bar" style="background:#ff6b35"></div>
+      <span class="region-name" style="color:#ff6b35">West</span>
+      <span class="region-champ-label">&rarr; <strong style="color:#ff6b35">Arizona</strong></span>
+      <span class="region-upset">&#x26A1; Missouri over Miami FL</span>
+    </div>
+    <div class="bracket-scroll">
+      <div class="bracket-row">
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">1</span><span class="tname">Arizona</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">16</span><span class="tname">LIU</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">8</span><span class="tname">Villanova</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">9</span><span class="tname">Utah State</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">5</span><span class="tname">Wisconsin</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">12</span><span class="tname">High Point</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">4</span><span class="tname">Arkansas</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">13</span><span class="tname">Hawaii</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">6</span><span class="tname">BYU</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">11</span><span class="tname">TX/NC St.</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">3</span><span class="tname">Gonzaga</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">14</span><span class="tname">Ken. State</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="seed">7</span><span class="tname">Miami FL</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">10</span><span class="tname">Missouri</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="seed">2</span><span class="tname">Purdue</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="seed">15</span><span class="tname">Queens</span></div>
+        </div>
+        <div class="connector" style="background:#ff6b35"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Arizona</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Villanova</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Wisconsin</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Arkansas</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">BYU</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Gonzaga</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">Missouri</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Purdue</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#ff6b35"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Arizona</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Wisconsin</span></div>
+          <div class="pair-gap-xl"></div>
+          <div class="slot"><span class="tname">Gonzaga</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Purdue</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#ff6b35"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,107,53,.18);--slot-border:rgba(255,107,53,.55)"><span class="tname">Arizona</span><span class="check" style="color:#ff6b35">&#x2713;</span></div>
+          <div class="slot-gap"></div>
+          <div class="slot"><span class="tname">Purdue</span></div>
+        </div>
+        <div class="connector" style="background:#ff6b35"></div>
+        <div class="champ-bubble" style="background:rgba(255,107,53,.22);border-color:#ff6b35;color:#ff6b35">&#x1F3C6;<br/>Arizona</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDWEST -->
+
+  <div class="region-wrap">
+    <div class="region-header">
+      <div class="region-bar" style="background:#4aff88"></div>
+      <span class="region-name" style="color:#4aff88">Midwest</span>
+      <span class="region-champ-label">&rarr; <strong style="color:#4aff88">Michigan</strong></span>
+      <span class="region-upset">&#x26A1; Santa Clara over Kentucky</span>
+    </div>
+    <div class="bracket-scroll">
+      <div class="bracket-row">
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">1</span><span class="tname">Michigan</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">16</span><span class="tname">UMBC/Howard</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">8</span><span class="tname">Georgia</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">9</span><span class="tname">Saint Louis</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">5</span><span class="tname">Texas Tech</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">12</span><span class="tname">Akron</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">4</span><span class="tname">Alabama</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">13</span><span class="tname">Hofstra</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">6</span><span class="tname">Tennessee</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">11</span><span class="tname">SMU/MiaOH</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">3</span><span class="tname">Virginia</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">14</span><span class="tname">Wright St.</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="seed">7</span><span class="tname">Kentucky</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">10</span><span class="tname">Santa Clara</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="seed">2</span><span class="tname">Iowa State</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="seed">15</span><span class="tname">TN State</span></div>
+        </div>
+        <div class="connector" style="background:#4aff88"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Michigan</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Georgia</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">Texas Tech</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Alabama</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Tennessee</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Virginia</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">Santa Clara</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Iowa State</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#4aff88"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Michigan</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Alabama</span></div>
+          <div class="pair-gap-xl"></div>
+          <div class="slot"><span class="tname">Tennessee</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Iowa State</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#4aff88"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(74,255,136,.18);--slot-border:rgba(74,255,136,.55)"><span class="tname">Michigan</span><span class="check" style="color:#4aff88">&#x2713;</span></div>
+          <div class="slot-gap"></div>
+          <div class="slot"><span class="tname">Iowa State</span></div>
+        </div>
+        <div class="connector" style="background:#4aff88"></div>
+        <div class="champ-bubble" style="background:rgba(74,255,136,.22);border-color:#4aff88;color:#4aff88">&#x1F3C6;<br/>Michigan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOUTH -->
+
+  <div class="region-wrap">
+    <div class="region-header">
+      <div class="region-bar" style="background:#ffd700"></div>
+      <span class="region-name" style="color:#ffd700">South</span>
+      <span class="region-champ-label">&rarr; <strong style="color:#ffd700">Houston</strong></span>
+      <span class="region-upset">&#x26A1; VCU over N. Carolina</span>
+    </div>
+    <div class="bracket-scroll">
+      <div class="bracket-row">
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">1</span><span class="tname">Florida</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">16</span><span class="tname">PV/Lehigh</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">8</span><span class="tname">Clemson</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">9</span><span class="tname">Iowa</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">5</span><span class="tname">Vanderbilt</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">12</span><span class="tname">McNeese</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">4</span><span class="tname">Nebraska</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">13</span><span class="tname">Troy</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="seed">6</span><span class="tname">N. Carolina</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">11</span><span class="tname">VCU</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">3</span><span class="tname">Illinois</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">14</span><span class="tname">Penn</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="seed">7</span><span class="tname">Saint Mary&#39;s</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">10</span><span class="tname">Texas A&amp;M</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="seed">2</span><span class="tname">Houston</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="seed">15</span><span class="tname">Idaho</span></div>
+        </div>
+        <div class="connector" style="background:#ffd700"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Florida</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Clemson</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Vanderbilt</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Nebraska</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">VCU</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Illinois</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="pair-gap-lg"></div>
+          <div class="slot"><span class="tname">Texas A&amp;M</span></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Houston</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#ffd700"></div>
+        <div class="col">
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Florida</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Vanderbilt</span></div>
+          <div class="pair-gap-xl"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Illinois</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+          <div class="slot"><span class="tname">Houston</span></div>
+        </div>
+        <div class="connector" style="background:#ffd700"></div>
+        <div class="col">
+          <div class="slot"><span class="tname">Florida</span></div>
+          <div class="slot-gap"></div>
+          <div class="slot winner" style="--slot-bg:rgba(255,215,0,.18);--slot-border:rgba(255,215,0,.55)"><span class="tname">Houston</span><span class="check" style="color:#ffd700">&#x2713;</span></div>
+        </div>
+        <div class="connector" style="background:#ffd700"></div>
+        <div class="champ-bubble" style="background:rgba(255,215,0,.22);border-color:#ffd700;color:#ffd700">&#x1F3C6;<br/>Houston</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="swipe-hint">&larr; swipe to see full bracket on mobile &rarr;</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<!-- FINAL FOUR TAB -->
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<div id="tab-final4" class="tab-content">
+  <div class="ff-wrap">
+    <div class="ff-title">
+      <h2>Final Four Predictions</h2>
+      <p>Indianapolis &middot; Lucas Oil Stadium &middot; April 4&ndash;6</p>
+    </div>
+
+```
+<div class="sf-labels">
+  <div class="sf-label">Semifinal 1</div>
+  <div></div>
+  <div class="sf-label">Semifinal 2</div>
+</div>
+
+<div class="sf-grid">
+  <div>
+    <div class="team-box runner">Duke 🥈</div>
+    <div class="team-box normal">Houston</div>
+    <div class="sf-adv" style="color:#4a9eff">&rarr; <strong>Duke</strong> advances</div>
+  </div>
+  <div class="sf-icon">🏟</div>
+  <div>
+    <div class="team-box normal">Arizona</div>
+    <div class="team-box champ">Michigan 🏆</div>
+    <div class="sf-adv" style="color:#4aff88">&rarr; <strong>Michigan</strong> advances</div>
+  </div>
+</div>
+
+<div class="championship">
+  <div class="champ-eyebrow">National Championship &middot; April 6 &middot; Indianapolis</div>
+  <div class="champ-matchup">
+    <div>
+      <div class="runner-name">Duke</div>
+      <div style="font-size:.68rem;color:#607080">Runner-up 🥈</div>
+    </div>
+    <div class="vs">vs</div>
+    <div>
+      <div class="winner-name">Michigan 🏆</div>
+      <div class="winner-label">Champion</div>
+    </div>
+  </div>
+</div>
+
+<div class="odds-grid">
+  <div class="odds-card">
+    <div class="odds-top"><span class="odds-team">Duke</span><span class="odds-num">+300</span></div>
+    <div class="odds-note">KenPom #1 &mdash; injury risk with Foster &amp; Ngongba</div>
+  </div>
+  <div class="odds-card">
+    <div class="odds-top"><span class="odds-team">Michigan</span><span class="odds-num">~+600</span></div>
+    <div class="odds-note">Softest path, deepest roster front-to-back</div>
+  </div>
+  <div class="odds-card">
+    <div class="odds-top"><span class="odds-team">Arizona</span><span class="odds-num">~+800</span></div>
+    <div class="odds-note">Analytics darling &mdash; balanced West bracket</div>
+  </div>
+  <div class="odds-card">
+    <div class="odds-top"><span class="odds-team">Houston</span><span class="odds-num">~+1200</span></div>
+    <div class="odds-note">Flemings is a tournament star in the making</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<!-- INSIGHTS TAB -->
+
+<!-- ══════════════════════════════════════════════════ -->
+
+<div id="tab-insights" class="tab-content">
+  <div class="insights-wrap">
+    <div class="insights-eyebrow">Analytics &middot; Odds &middot; Historical Trends</div>
+
+```
+<div class="insight-card" style="border-left-color:#FFD700">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">🏆 Champion: Michigan</div>
+      <div class="insight-body">Most complete roster in the field. Lendeborg, Johnson &amp; Mara dominate the frontcourt. The Midwest is the softest path to Indy of any 1-seed. Multiple CBS SportsLine simulations converge here.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#4aff88">72%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:72%;background:#4aff88"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-card" style="border-left-color:#4a9eff">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">🔥 Duke &mdash; Chalk but Wounded</div>
+      <div class="insight-body">Cameron Boozer (22.7 PPG, 10.2 RPG) is a top-3 NBA pick. KenPom #1 at +300. BUT both Caleb Foster AND Patrick Ngongba have foot injuries and missed the ACC tournament &mdash; real vulnerability for a tight-rotation team.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#4aff88">65%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:65%;background:#4aff88"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-card" style="border-left-color:#a855f7">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">&#x26A1; Best Upset: N. Iowa (12) over St. John&#39;s (5)</div>
+      <div class="insight-body">UNI ranks 5th nationally in defensive rating. St. John&#39;s enters without an established starting PG. Classic 12-seed trap &mdash; 35% historical win rate.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#ffd700">55%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:55%;background:#ffd700"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-card" style="border-left-color:#ef4444">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">🎯 Sleeper: Santa Clara (10) over Kentucky (7)</div>
+      <div class="insight-body">Kentucky is 13-loss with no true PG. Santa Clara beat three Mountain West teams in one week. Hot-shooting 10-seeds are bracket killers.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#ffd700">52%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:52%;background:#ffd700"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-card" style="border-left-color:#06b6d4">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">💡 Dark Horse: VCU (11) over N. Carolina (6)</div>
+      <div class="insight-body">VCU won 16 of their last 17. UNC finished without a winning Quad 1 record and is banged up. 11-seeds win ~37% historically.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#ff8844">48%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:48%;background:#ff8844"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-card" style="border-left-color:#f97316">
+  <div class="insight-inner">
+    <div>
+      <div class="insight-title">📊 Analytics Lock: Arizona (West)</div>
+      <div class="insight-body">One of three teams clearly above the field alongside Duke and Michigan. Koa Peat and Tommy Kuhse give multiple paths to win. Only real threat Purdue has been wildly inconsistent.</div>
+    </div>
+    <div class="conf-box">
+      <div class="conf-num" style="color:#4aff88">68%</div>
+      <div class="conf-label">conf.</div>
+      <div class="conf-bar-bg"><div class="conf-bar" style="width:68%;background:#4aff88"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sources"><strong>Sources:</strong> KenPom &middot; BetMGM &middot; CBS SportsLine (10K simulations) &middot; ESPN &middot; Yahoo Sports &middot; FanSided &middot; Historical seed win-rate data &middot; March 19, 2026</div>
+```
+
+  </div>
+</div>
+
+<div class="footer">KenPom &middot; BetMGM &middot; CBS SportsLine &middot; ESPN &middot; Yahoo Sports &middot; March 19, 2026</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll(".tab-content").forEach(function(el){ el.classList.remove("active"); });
+  document.querySelectorAll(".tab-btn").forEach(function(el){ el.classList.remove("active"); });
+  document.getElementById("tab-"+id).classList.add("active");
+  event.target.classList.add("active");
+}
+</script>
+
+</body>
+</html>
